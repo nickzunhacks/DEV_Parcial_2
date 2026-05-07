@@ -1,0 +1,4 @@
+books.get -> obtener todos los libros creados en db
+book.post -> crear libro
+book.get -> obtner un libro por id
+book.patch -> actualizar todo el libro menos el id
