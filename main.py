@@ -1,10 +1,11 @@
-from typing import List
-
-from fastapi import FastAPI
+from fastapi import FastAPI, HTTPException
 from db import SessionDep, create_all_tables
 from model import Book, BookId
-from sqlmodel import select
-from bookOperations import create_book, show_all_books
+from bookOperations import (create_book,
+                            show_all_books,
+                            find_book,
+                            update_book
+                            )
 
 app = FastAPI(lifespan=create_all_tables)
 
@@ -23,5 +24,23 @@ def books_get_all(session: SessionDep):
     return show_all_books(session)
 
 @app.post("/book")
-def book(book: Book, session: SessionDep):
+def book_post(book: Book, session: SessionDep):
     return create_book(session, book)
+
+@app.get("/book")
+def book_get_one(session: SessionDep, id: int):
+    book = find_book(session, id)
+
+    if "Error" in book:
+        raise HTTPException(status_code=404, detail="Book not found")
+
+    return book
+
+@app.patch("/book")
+def upload_book(session: SessionDep, book: Book, id: int):
+    uploaded_book = update_book(session, book, id)
+
+    if "Error" in uploaded_book:
+        raise HTTPException(status_code=404, detail="Book not found")
+
+    return uploaded_book
